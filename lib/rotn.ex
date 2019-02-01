@@ -5,9 +5,6 @@ defmodule Rotn do
   around a circle of ASCII values from 32 - 126 inclusive.
   """
 
-  @starting_symbol ?\s
-  @ending_symbol ?~
-
   @doc ~S"""
   Returns an `{:ok, "encoded string"}` tuple.
 
@@ -26,9 +23,8 @@ defmodule Rotn do
       {:ok, "Zyu(4})4*|y4#}$x!}\"\"y("}
 
   """
-  def encode(text, delta) when is_binary(text) and is_integer(delta), do: {:ok, shift(text, delta, shift: :right)}
-  def encode(_, delta) when not is_integer(delta), do: {:error, "Incompatible shift value"}
-  def encode(_, _), do: {:error, "Cannot encode non-binary"}
+  @spec encode(binary(), integer()) :: {:ok | :error, binary()}
+  defdelegate encode(text, delta), to: Rotn.Cipher, as: :encode
 
   @doc ~S"""
   Returns an encoded string, raising an ArgumentError if the provided
@@ -45,13 +41,8 @@ defmodule Rotn do
       iex> Rotn.encode!("the water belongs to the tribe", 2.5)
       ** (ArgumentError) Incompatible shift value
   """
-  def encode!(text, delta) do
-    with {:ok, encoded} <- encode(text, delta) do
-      encoded
-    else
-      {:error, reason} -> raise ArgumentError, reason
-    end
-  end
+  @spec encode!(binary(), integer()) :: binary() | no_return()
+  defdelegate encode!(text, delta), to: Rotn.Cipher, as: :encode!
 
   @doc ~S"""
   Returns an `{:ok, "decoded string"}` tuple.
@@ -71,9 +62,8 @@ defmodule Rotn do
       {:ok, "Fear is the mindkiller"}
 
   """
-  def decode(text, delta) when is_binary(text) and is_integer(delta), do: {:ok, shift(text, delta, shift: :left)}
-  def decode(_, delta) when not is_integer(delta), do: {:error, "Incompatible shift value"}
-  def decode(_, _), do: {:error, "Cannot decode non-binary"}
+  @spec decode(binary(), integer()) :: {:ok | :error, binary()}
+  defdelegate decode(text, delta), to: Rotn.Cipher, as: :decode
 
   @doc ~S"""
   Returns an decoded string, raising an ArgumentError if the provided
@@ -90,25 +80,7 @@ defmodule Rotn do
       iex> Rotn.decode!("/# 92z/ -9{ '*)\".9/*9/# 9/-${ ", 2.5)
       ** (ArgumentError) Incompatible shift value
   """
-  def decode!(text, delta) do
-    with {:ok, decoded} <- decode(text, delta) do
-      decoded
-    else
-      {:error, reason} -> raise ArgumentError, reason
-    end
-  end
+  @spec decode!(binary(), integer()) :: binary() | no_return()
+  defdelegate decode!(text, delta), to: Rotn.Cipher, as: :decode!
 
-  defp shift(text, delta, opts \\ [shift: :right])
-  defp shift(<<char>> <> text, delta, opts) do
-    <<shift_char(char, delta, opts)>> <> shift(text, delta, opts)
-  end
-  defp shift(_, _, _), do: ""
-
-  defp shift_char(char, delta, [shift: direction]) when char in @starting_symbol..@ending_symbol do
-    rem(char - @starting_symbol + enc_or_dec(direction, delta), 94) + @starting_symbol
-  end
-  defp shift_char(char, _, _), do: char
-
-  defp enc_or_dec(:right, delta), do: abs(delta)
-  defp enc_or_dec(:left, delta), do: (@ending_symbol - @starting_symbol) - abs(delta)
 end
