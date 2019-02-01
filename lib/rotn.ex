@@ -82,5 +82,4 @@ defmodule Rotn do
   """
   @spec decode!(binary(), integer()) :: binary() | no_return()
   defdelegate decode!(text, delta), to: Rotn.Cipher, as: :decode!
-
 end

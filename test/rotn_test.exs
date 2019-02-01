@@ -10,6 +10,7 @@ defmodule RotnTest do
     test "ignores empty strings" do
       assert Rotn.encode("", 13) == {:ok, ""}
     end
+
     test "ignores non-space whitespace" do
       assert Rotn.encode("\d\t\n ", 13) == {:ok, "\d\t\n-"}
     end
@@ -31,8 +32,13 @@ defmodule RotnTest do
     end
 
     test "raises argument error if value cannot be encoded" do
-      assert_raise ArgumentError, "Cannot encode non-binary", fn -> Rotn.encode!(:not_binary, 13) end
-      assert_raise ArgumentError, "Incompatible shift value", fn -> Rotn.encode!("This should work", 3.1415) end
+      assert_raise ArgumentError, "Cannot encode non-binary", fn ->
+        Rotn.encode!(:not_binary, 13)
+      end
+
+      assert_raise ArgumentError, "Incompatible shift value", fn ->
+        Rotn.encode!("This should work", 3.1415)
+      end
     end
   end
 
@@ -56,8 +62,13 @@ defmodule RotnTest do
     end
 
     test "raises errors one might come to expect by now" do
-      assert_raise ArgumentError, "Cannot decode non-binary", fn -> Rotn.decode!(:"7dS_*0()n", 13) end
-      assert_raise ArgumentError, "Incompatible shift value", fn -> Rotn.decode!("K$xr12", 3.1415) end
+      assert_raise ArgumentError, "Cannot decode non-binary", fn ->
+        Rotn.decode!(:"7dS_*0()n", 13)
+      end
+
+      assert_raise ArgumentError, "Incompatible shift value", fn ->
+        Rotn.decode!("K$xr12", 3.1415)
+      end
     end
   end
 end
